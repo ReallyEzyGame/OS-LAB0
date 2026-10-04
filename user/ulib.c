@@ -17,6 +17,7 @@ start(int argc, char **argv)
   exit(r);
 }
 
+// Copy a string from s to t
 char *
 strcpy(char *s, const char *t)
 {
@@ -28,6 +29,10 @@ strcpy(char *s, const char *t)
   return os;
 }
 
+// Compare two strs base on lexicographical order
+// Return negative value if p < q
+//    0 if p = q
+//    1 if p > q
 int
 strcmp(const char *p, const char *q)
 {
@@ -36,6 +41,7 @@ strcmp(const char *p, const char *q)
   return (uchar)*p - (uchar)*q;
 }
 
+// Return an uint size of the str
 uint
 strlen(const char *s)
 {
@@ -46,6 +52,7 @@ strlen(const char *s)
   return n;
 }
 
+// Set a block of memory to some value
 void *
 memset(void *dst, int c, uint n)
 {
@@ -57,6 +64,9 @@ memset(void *dst, int c, uint n)
   return dst;
 }
 
+// Find the first character matches
+// Return its address
+// Otherwise return 0( null) 
 char *
 strchr(const char *s, char c)
 {
@@ -66,6 +76,8 @@ strchr(const char *s, char c)
   return 0;
 }
 
+// Read a portition of SOMETHING( may be from file, terminal?...input stream)
+// Return a line from the current INPUT STREAM(idk:))) or at most size 'max'
 char *
 gets(char *buf, int max)
 {
@@ -84,6 +96,8 @@ gets(char *buf, int max)
   return buf;
 }
 
+// Read for file status
+// Return file status in st and status code 
 int
 stat(const char *n, struct stat *st)
 {
@@ -98,6 +112,8 @@ stat(const char *n, struct stat *st)
   return r;
 }
 
+// Converte a str to int
+// Return int value
 int
 atoi(const char *s)
 {
@@ -109,6 +125,7 @@ atoi(const char *s)
   return n;
 }
 
+// Move a block of data from source block to destination block
 void *
 memmove(void *vdst, const void *vsrc, int n)
 {
@@ -129,6 +146,10 @@ memmove(void *vdst, const void *vsrc, int n)
   return vdst;
 }
 
+// Compare two block of data with the same size n
+// Return negative value if p1[i] < p2[i]
+// 0 if both are equal
+// Positive value if p1[i] > p2[i]
 int
 memcmp(const void *s1, const void *s2, uint n)
 {
@@ -143,18 +164,22 @@ memcmp(const void *s1, const void *s2, uint n)
   return 0;
 }
 
+// Copy size of n data from src datablock to dst datablock
+// Return the pointer of dst pointer
 void *
 memcpy(void *dst, const void *src, uint n)
 {
   return memmove(dst, src, n);
 }
 
+// Still have not found out yet
 char *
 sbrk(int n)
 {
   return sys_sbrk(n, SBRK_EAGER);
 }
 
+// Still have not found out yet
 char *
 sbrklazy(int n)
 {

@@ -1,0 +1,6 @@
+- Add new files including: trace.c, trace.h in user/ directory
+    + One way to do it is to wrap the command it traces( wrapper)
+    + problem: how to write it
+    + bit mask( assign each syscall with a bit turn on)
+    + pros: no need to fix code in kernel anymore
+    + cons: 

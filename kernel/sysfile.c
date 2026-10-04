@@ -455,6 +455,7 @@ sys_chdir(void)
   return 0;
 }
 
+// THIS CAN BE REUSE
 uint64
 sys_exec(void)
 {
@@ -527,4 +528,9 @@ sys_pipe(void)
     return -1;
   }
   return 0;
+}
+
+uint64
+sys_trace(void) {
+  return 1;
 }

@@ -19,8 +19,8 @@ struct cmd {
 
 struct execcmd {
   int type;
-  char *argv[MAXARGS];
-  char *eargv[MAXARGS];
+  char *argv[MAXARGS];  // arguments
+  char *eargv[MAXARGS]; // exec arguments
 };
 
 struct redircmd {
@@ -64,7 +64,7 @@ runcmd(struct cmd *cmd)
   struct listcmd *lcmd;
   struct pipecmd *pcmd;
   struct redircmd *rcmd;
-
+  // check for null case
   if (cmd == 0)
     exit(1);
 
@@ -268,6 +268,12 @@ backcmd(struct cmd *subcmd)
 char whitespace[] = " \t\r\n\v";
 char symbols[] = "<|>&;()";
 
+// Get a whole string of character except for some symbols
+// ps: string pointer
+// es: string end pointer
+// q: token pointer
+// eq: token end pointer
+// Return 'a' if it's a char str, '+' if it's a sign '>'
 int
 gettoken(char **ps, char *es, char **q, char **eq)
 {
@@ -275,8 +281,10 @@ gettoken(char **ps, char *es, char **q, char **eq)
   int ret;
 
   s = *ps;
+  // ignore leading whitespace
   while (s < es && strchr(whitespace, *s))
     s++;
+  // 
   if (q)
     *q = s;
   ret = *s;
@@ -291,6 +299,7 @@ gettoken(char **ps, char *es, char **q, char **eq)
   case '<':
     s++;
     break;
+  // idk what is it purpose
   case '>':
     s++;
     if (*s == '>') {
@@ -298,6 +307,7 @@ gettoken(char **ps, char *es, char **q, char **eq)
       s++;
     }
     break;
+  // got all the 
   default:
     ret = 'a';
     while (s < es && !strchr(whitespace, *s) && !strchr(symbols, *s))
@@ -313,6 +323,9 @@ gettoken(char **ps, char *es, char **q, char **eq)
   return ret;
 }
 
+// Move to pass substr
+// Return the next character after current substr in ps
+// CHECK THIS OUT Return true if *s belongs to a token
 int
 peek(char **ps, char *es, char *toks)
 {
@@ -330,6 +343,7 @@ struct cmd *parsepipe(char **, char *);
 struct cmd *parseexec(char **, char *);
 struct cmd *nulterminate(struct cmd *);
 
+// Parse string into a command
 struct cmd *
 parsecmd(char *s)
 {
@@ -347,6 +361,7 @@ parsecmd(char *s)
   return cmd;
 }
 
+// What it does
 struct cmd *
 parseline(char **ps, char *es)
 {
@@ -364,6 +379,7 @@ parseline(char **ps, char *es)
   return cmd;
 }
 
+// What it does?
 struct cmd *
 parsepipe(char **ps, char *es)
 {
@@ -377,6 +393,7 @@ parsepipe(char **ps, char *es)
   return cmd;
 }
 
+// What it does?
 struct cmd *
 parseredirs(struct cmd *cmd, char **ps, char *es)
 {
@@ -402,6 +419,7 @@ parseredirs(struct cmd *cmd, char **ps, char *es)
   return cmd;
 }
 
+// What it does?
 struct cmd *
 parseblock(char **ps, char *es)
 {
@@ -418,6 +436,7 @@ parseblock(char **ps, char *es)
   return cmd;
 }
 
+// What it does?
 struct cmd *
 parseexec(char **ps, char *es)
 {
