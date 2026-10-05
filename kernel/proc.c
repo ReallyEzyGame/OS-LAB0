@@ -274,7 +274,8 @@ kfork(void)
     return -1;
   }
   np->sz = p->sz;
-
+  // ADD: child process must have the same trace_mask as father
+  np->trace_mask = p->trace_mask;
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 

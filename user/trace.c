@@ -2,8 +2,11 @@
     20261004: Add file and basic 'trace' command
 */
 
+#include "kernel/types.h"
+#include "kernel/stat.h"
+#include "kernel/syscall.h"
 #include "user/user.h"
-#include "user/sh.c"
+
 
 
 // argc[0] = trace
@@ -17,6 +20,14 @@ main(int argc, char *argv[]) {
         exit(1);
     }
 
-    int trace_mask = atoi(argv[1]);   //
+    int mask = atoi(argv[1]);
+    // char* path = argv[0];       // command path( command name)
+    // copy n - 1 command left from here
+    
+    // simple TRACE version 1.0
+    // only trace for one command at a time
+    trace(mask);
+    exec(argv[2], &argv[2]);
+    printf("exec %s failed", argv[2]);
     exit(0);
 }

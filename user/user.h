@@ -26,7 +26,7 @@ int pause(int);
 int uptime(void);
 int sync(void);
 // Add more
-int trace(void);
+int trace(int);
 
 // ulib.c
 int stat(const char *, struct stat *);

@@ -110,3 +110,15 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+// How to get all the command
+// Handling them through what? exec maybe
+// How to return
+uint64
+sys_trace(void) {
+  int mask;
+  argint(0, &mask);
+  myproc()->trace_mask = mask;
+  return 0;
+}
