@@ -151,6 +151,8 @@ UPROGS=\
 	$U/_dorphan\
 	$U/_sync\
 	$U/_trace\
+	$U/_sysinfo\
+	$U/_sysinfotest\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
@@ -203,3 +205,7 @@ check-qemu-version:
 .PHONY: fmt
 fmt:
 	clang-format -i $(wildcard kernel/*.[ch] user/*.[ch] mkfs/*.c)
+
+.PHONY: test-sysinfo
+test-sysinfo:
+	python3 tests/test_sysinfo.py
