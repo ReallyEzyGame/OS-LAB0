@@ -1,6 +1,7 @@
 #ifndef XV6_SYSINFO_H
 #define XV6_SYSINFO_H
 
+
 // Shared user/kernel ABI. Include types.h before this header.
 #include "param.h"
 
@@ -44,6 +45,7 @@ struct sysinfo_proc {
   int ppid; // Zero when there is no parent.
   int state;
   int nfiles;    // Number of descriptors, including duplicates.
+  unsigned sched_count;  // executing time counter
   uint64 nsched; // Times dispatched by scheduler(), starting from zero.
   struct sysinfo_fd files[NOFILE]; // Only [0, nfiles) is valid.
 };

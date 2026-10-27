@@ -12,6 +12,8 @@
 #include "file.h"
 #include "stat.h"
 #include "proc.h"
+#include "sysinfo.h"
+
 
 struct devsw devsw[NDEV];
 struct {
@@ -177,3 +179,47 @@ filewrite(struct file *f, uint64 addr, int n)
 
   return ret;
 }
+
+
+
+
+/* Index of f inside ftable.file[], or -1 if f is not an ftable entry.
+ * Pure pointer arithmetic, so no lock is needed. */
+int
+fileindex(struct file *f)
+{
+  if(f < ftable.file || f >= ftable.file + NFILE)
+    return -1;
+  return (int)(f - ftable.file);
+}
+
+/* Snapshot ftable slot idx into *out. Returns 1 if the slot is open
+ * (ref > 0), 0 otherwise. out->nproc / out->pids are filled by the caller. */
+int
+filesnapshot(int idx, struct sysinfo_file *out)
+{
+  struct file *f = &ftable.file[idx];
+  int used = 0;
+
+  acquire(&ftable.lock);
+  if(f->ref > 0){
+    used = 1;
+    out->id = idx;
+    switch(f->type){
+    case FD_PIPE:   out->type = SYSINFO_FD_PIPE;   break;
+    case FD_INODE:  out->type = SYSINFO_FD_INODE;  break;
+    case FD_DEVICE: out->type = SYSINFO_FD_DEVICE; break;
+    default:        out->type = SYSINFO_FD_NONE;   break;
+    }
+    out->mode = (f->readable ? SYSINFO_READ : 0) |
+                (f->writable ? SYSINFO_WRITE : 0);
+    out->ref = f->ref;
+    out->nproc = 0;
+  }
+  release(&ftable.lock);
+  return used;
+}
+
+
+
+

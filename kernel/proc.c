@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+# include "sysinfo.h"
 
 struct cpu cpus[NCPU];
 
@@ -13,6 +14,8 @@ struct proc proc[NPROC];
 struct proc *initproc;
 
 int nextpid = 1;
+
+
 struct spinlock pid_lock;
 
 extern void forkret(void);
@@ -110,7 +113,6 @@ static struct proc *
 allocproc(void)
 {
   struct proc *p;
-
   for (p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if (p->state == UNUSED) {
@@ -124,6 +126,8 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->sched_count = 0;
+  p->nsched = 0;
 
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {
@@ -168,6 +172,8 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+  p->sched_count = 0;
+  p->nsched = 0;
 }
 
 // Create a user page table for a given process, with no user memory,
@@ -450,6 +456,7 @@ scheduler(void)
         // to release its lock and then reacquire it
         // before jumping back to us.
         p->state = RUNNING;
+        p->nsched++;   // increment time counter of the process
         c->proc = p;
         swtch(&c->context, &p->context);
 
@@ -504,6 +511,7 @@ yield(void)
   struct proc *p = myproc();
   acquire(&p->lock);
   p->state = RUNNABLE;
+  p->sched_count++;
   sched();
   release(&p->lock);
 }
@@ -702,3 +710,48 @@ procdump(void)
     printk("\n");
   }
 }
+
+
+
+/* Snapshot proc[idx] into *out. Returns 1 if state != UNUSED, else 0.
+ * Lock order is wait_lock then p->lock, the same order wait() uses, so it
+ * cannot deadlock. wait_lock protects p->parent. */
+int
+procinfo(int idx, struct sysinfo_proc *out)
+{
+  struct proc *p = &proc[idx];
+  int i, id;
+
+  acquire(&wait_lock);
+  acquire(&p->lock);
+  if(p->state == UNUSED){
+    release(&p->lock);
+    release(&wait_lock);
+    return 0;
+  }
+
+  out->pid = p->pid;
+  out->ppid = p->parent ? p->parent->pid : 0;
+  out->state = p->state;            /* same numbering as SYSINFO_* states */
+  out->sched_count = p->sched_count;
+  out->nsched = p->nsched;
+
+  out->nfiles = 0;                  /* counts descriptors, duplicates included */
+  for(i = 0; i < NOFILE; i++){
+    if(p->ofile[i] == 0)
+      continue;
+    id = fileindex(p->ofile[i]);
+    if(id < 0)
+      continue;
+    out->files[out->nfiles].fd = i;
+    out->files[out->nfiles].file_id = id;
+    out->nfiles++;
+  }
+
+  release(&p->lock);
+  release(&wait_lock);
+  return 1;
+}
+
+
+
