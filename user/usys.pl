@@ -45,3 +45,4 @@ entry("uptime");
 entry("sync");
 # Add entry trace to use system call trace
 entry("trace");
+entry("sysinfo");
