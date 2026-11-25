@@ -25,6 +25,7 @@ void            consputc(int);
 
 // exec.c
 int             kexec(char*, char**);
+int             kexec_vmprint(char*, char**);
 
 // file.c
 struct file*    filealloc(void);
@@ -170,6 +171,7 @@ int             copyin(pagetable_t, uint64, char *, uint64, uint64);
 int             copyinstr(pagetable_t, uint64, char *, uint64, uint64);
 int             ismapped(pagetable_t, uint64);
 uint64          vmfault(pagetable_t, uint64, uint64, int);
+void            vmprint(pagetable_t);
 
 // plic.c
 void            plicinit(void);
