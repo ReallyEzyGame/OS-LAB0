@@ -29,6 +29,7 @@ int sync(void);
 // Add more
 int trace(int);
 int sysinfo(struct sysinfo *);
+int pgaccess(void *base, int len, void *mask);
 
 // ulib.c
 int stat(const char *, struct stat *);

@@ -109,6 +109,8 @@ extern uint64 sys_sync(void);
 // Add more systemcall trace command
 extern uint64 sys_trace(void);
 
+extern uint64 sys_pgaccess(void);
+
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
 static uint64 (*syscalls[])(void) = {
@@ -138,6 +140,8 @@ static uint64 (*syscalls[])(void) = {
   // Add more
   [SYS_trace]   = sys_trace,
   // clang-format on
+
+  [SYS_pgaccess] = sys_pgaccess,
 };
 
 static char (*syscalls_name[]) = {
@@ -167,6 +171,8 @@ static char (*syscalls_name[]) = {
   // Add more
   [SYS_trace]   = "trace",
   // clang-format on
+
+  [SYS_pgaccess] = "pgaccess",
 };
 
 void
