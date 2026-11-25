@@ -153,6 +153,7 @@ UPROGS=\
 	$U/_trace\
 	$U/_sysinfo\
 	$U/_sysinfotest\
+	$U/_pgtbltest\
 	$U/_vmprint\
 	$U/_vmprinttest\
 

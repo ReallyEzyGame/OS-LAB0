@@ -122,3 +122,49 @@ sys_trace(void) {
   myproc()->trace_mask = mask;
   return 0;
 }
+
+#define PGACCESS_MAX_PAGES 32
+
+uint64
+sys_pgaccess(void)
+{
+  uint64 base;
+  int len;
+  uint64 mask_addr;
+
+  argaddr(0, &base);
+  argint(1, &len);
+  argaddr(2, &mask_addr);
+
+  if (len < 0 || len > PGACCESS_MAX_PAGES)
+    return -1;
+
+  struct proc *p = myproc();
+  uint32 bitmask = 0;
+  uint64 va = PGROUNDDOWN(base);
+  int cleared = 0;
+
+  for (int i = 0; i < len; i++) {
+    if (va >= MAXVA)
+      return -1;
+
+    pte_t *pte = walk(p->pagetable, va, 0);
+    if (pte != 0 && (*pte & PTE_V) && (*pte & PTE_U)) {
+      if (*pte & PTE_A) {
+        bitmask |= (1U << i);
+        *pte &= ~PTE_A; // Xóa bit A để lần gọi sau chỉ bắt truy cập mới
+        cleared = 1;
+      }
+    }
+    va += PGSIZE;
+  }
+
+  // Flush TLB nếu có xóa PTE_A để phần cứng walk lại page table ở lần truy cập kế tiếp
+  if (cleared)
+    sfence_vma();
+
+  if (copyout(p->pagetable, p->sz, mask_addr, (char *)&bitmask, sizeof(bitmask)) < 0)
+    return -1;
+
+  return 0;
+}
