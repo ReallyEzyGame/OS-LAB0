@@ -154,6 +154,8 @@ UPROGS=\
 	$U/_sysinfo\
 	$U/_sysinfotest\
 	$U/_pgtbltest\
+	$U/_vmprint\
+	$U/_vmprinttest\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
@@ -210,3 +212,7 @@ fmt:
 .PHONY: test-sysinfo
 test-sysinfo:
 	python3 tests/test_sysinfo.py
+
+.PHONY: test-vmprint
+test-vmprint:
+	python3 tests/test_vmprint.py

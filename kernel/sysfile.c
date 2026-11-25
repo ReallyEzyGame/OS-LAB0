@@ -456,8 +456,8 @@ sys_chdir(void)
 }
 
 // THIS CAN BE REUSE
-uint64
-sys_exec(void)
+static uint64
+exec_common(int print_pt)
 {
   char path[MAXPATH], *argv[MAXARG];
   int i;
@@ -486,7 +486,7 @@ sys_exec(void)
       goto bad;
   }
 
-  int ret = kexec(path, argv);
+  int ret = print_pt ? kexec_vmprint(path, argv) : kexec(path, argv);
 
   for (i = 0; i < NELEM(argv) && argv[i] != 0; i++)
     kfree(argv[i]);
@@ -497,6 +497,18 @@ bad:
   for (i = 0; i < NELEM(argv) && argv[i] != 0; i++)
     kfree(argv[i]);
   return -1;
+}
+
+uint64
+sys_exec(void)
+{
+  return exec_common(0);
+}
+
+uint64
+sys_exec_vmprint(void)
+{
+  return exec_common(1);
 }
 
 uint64

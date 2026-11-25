@@ -108,6 +108,7 @@ extern uint64 sys_close(void);
 extern uint64 sys_sync(void);
 // Add more systemcall trace command
 extern uint64 sys_trace(void);
+extern uint64 sys_exec_vmprint(void);
 
 extern uint64 sys_pgaccess(void);
 
@@ -139,6 +140,7 @@ static uint64 (*syscalls[])(void) = {
   [SYS_sync]    = sys_sync,
   // Add more
   [SYS_trace]   = sys_trace,
+  [SYS_exec_vmprint] = sys_exec_vmprint,
   // clang-format on
 
   [SYS_pgaccess] = sys_pgaccess,
@@ -170,6 +172,7 @@ static char (*syscalls_name[]) = {
   [SYS_sync]    = "sync",
   // Add more
   [SYS_trace]   = "trace",
+  [SYS_exec_vmprint] = "exec_vmprint",
   // clang-format on
 
   [SYS_pgaccess] = "pgaccess",
