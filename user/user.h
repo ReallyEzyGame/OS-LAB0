@@ -29,6 +29,8 @@ int sync(void);
 // Add more
 int trace(int);
 int sysinfo(struct sysinfo *);
+int pgaccess(void *base, int len, void *mask);
+int exec_vmprint(const char *, char **);
 
 // ulib.c
 int stat(const char *, struct stat *);

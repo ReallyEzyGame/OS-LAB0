@@ -489,3 +489,30 @@ ismapped(pagetable_t pagetable, uint64 va)
   }
   return 0;
 }
+
+static void
+vmprint_walk(pagetable_t pagetable, int depth)
+{
+  static char *prefix[] = { "..", ".. ..", ".. .. .." };
+
+  for (int i = 0; i < 512; i++) {
+    pte_t pte = pagetable[i];
+    if (pte & PTE_V) {
+      uint64 pa = PTE2PA(pte);
+      printk("%s%d: pte %p pa %p\n", prefix[depth], i, (void *)pte,
+             (void *)pa);
+      if ((pte & (PTE_R | PTE_W | PTE_X)) == 0 && depth < 2) {
+        vmprint_walk((pagetable_t)pa, depth + 1);
+      }
+    }
+  }
+}
+
+void
+vmprint(pagetable_t pagetable)
+{
+  if (pagetable == 0)
+    return;
+  printk("page table %p\n", (void *)pagetable);
+  vmprint_walk(pagetable, 0);
+}

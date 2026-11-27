@@ -24,8 +24,8 @@ flags2perm(int flags)
 //
 // the implementation of the exec() system call
 //
-int
-kexec(char *path, char **argv)
+static int
+kexec_internal(char *path, char **argv, int print_pt)
 {
   char *s, *last;
   int i, off;
@@ -137,6 +137,9 @@ kexec(char *path, char **argv)
   p->trapframe->sp = sp;         // initial stack pointer
   proc_freepagetable(oldpagetable, oldsz);
 
+  if (print_pt)
+    vmprint(p->pagetable);
+
   return argc; // this ends up in a0, the first argument to main(argc, argv)
 
 bad:
@@ -147,6 +150,18 @@ bad:
     end_op();
   }
   return -1;
+}
+
+int
+kexec(char *path, char **argv)
+{
+  return kexec_internal(path, argv, 0);
+}
+
+int
+kexec_vmprint(char *path, char **argv)
+{
+  return kexec_internal(path, argv, 1);
 }
 
 // Load an ELF program segment into pagetable at virtual address va.
