@@ -89,6 +89,8 @@ struct proc {
   int xstate;           // Exit status to be returned to parent's wait
   int pid;              // Process ID
   int trace_mask;       // ADD: trace mask
+  unsigned sched_count;         // timer ticks (time slices) this process has used
+  uint64 nsched;                // times scheduler() has dispatched this process
 
   // wait_lock must be held when using this:
   struct proc *parent; // Parent process
