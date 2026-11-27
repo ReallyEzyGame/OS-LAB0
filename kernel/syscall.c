@@ -174,7 +174,7 @@ static char (*syscalls_name[]) = {
   [SYS_sync]    = "sync",
   // Add more
   [SYS_trace]   = "trace",
-  [SYS_sysinfo] = "sysinfo"
+  [SYS_sysinfo] = "sysinfo",
   [SYS_exec_vmprint] = "exec_vmprint",
   // clang-format on
 
