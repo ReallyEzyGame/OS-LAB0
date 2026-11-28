@@ -51,6 +51,7 @@ struct sysinfo_proc {
 };
 
 struct sysinfo {
+  uint64 freemem; // Amount of free physical memory in bytes.
   int nfiles; // Number of ftable slots with ref > 0 (includes pipes/devices).
   int nprocs; // Number of processes whose state != UNUSED (includes ZOMBIE).
   struct sysinfo_file files[NFILE]; // Packed entries [0, nfiles).

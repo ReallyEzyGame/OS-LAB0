@@ -86,6 +86,8 @@ snapshot(void)
   // Poison the buffer so a success return without filling it cannot pass.
   memset(&info, 0xa5, sizeof(info));
   check(sysinfo(&info) == 0, "sysinfo failed (kernel handler required)");
+  check(info.freemem > 0 && (info.freemem % 4096) == 0,
+        "invalid free memory size");
   check(info.nfiles >= 0 && info.nfiles <= NFILE, "file count out of bounds");
   check(info.nprocs > 0 && info.nprocs <= NPROC, "process count out of bounds");
   for (int i = 0; i < info.nfiles; i++) {
@@ -485,6 +487,41 @@ cli(int mode)
   pass();
 }
 
+static void
+freememtest(void)
+{
+  testname = "freemem";
+  snapshot();
+  uint64 before = info.freemem;
+
+  // Single-page allocation and deallocation.
+  char *p = sbrk(4096);
+  check(p != SBRK_ERROR, "sbrk(4096) failed");
+  p[0] = 1;
+  snapshot();
+  check(info.freemem == before - 4096,
+        "sbrk(4096) did not reduce freemem by one page");
+  check(sbrk(-4096) != SBRK_ERROR, "sbrk(-4096) failed");
+  snapshot();
+  check(info.freemem == before, "sbrk(-4096) did not restore freemem");
+
+  // Multi-page allocation and deallocation.
+  int bytes = 4 * 4096;
+  p = sbrk(bytes);
+  check(p != SBRK_ERROR, "multi-page sbrk failed");
+  for (int i = 0; i < bytes; i += 4096)
+    p[i] = 1;
+  snapshot();
+  check(info.freemem == before - bytes,
+        "multi-page sbrk did not reduce freemem accurately");
+  check(sbrk(-bytes) != SBRK_ERROR, "multi-page sbrk free failed");
+  snapshot();
+  check(info.freemem == before, "multi-page free did not restore freemem");
+
+  pass();
+}
+
+
 int
 main(int argc, char **argv)
 {
@@ -498,6 +535,7 @@ main(int argc, char **argv)
     fprintf(2, "Usage: sysinfotest [--expect-unimplemented]\n");
     exit(1);
   }
+
   // A per-process name avoids clobbering a fixed user file.
   strcpy(path, "si-");
   int n = strlen(path);
@@ -510,6 +548,7 @@ main(int argc, char **argv)
 
   // Missing syscall must be a failure, never a skip or a fabricated pass.
   baseline();
+  freememtest();
   int fd = open(path, O_RDONLY);
   if (fd >= 0) {
     close(fd);

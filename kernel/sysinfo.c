@@ -42,7 +42,7 @@ _Static_assert(sizeof(struct scratch) <= PGSIZE, "scratch must fit in one page")
 uint64
 sys_sysinfo(void)
 {
-  uint64 addr, off, n;
+  uint64 addr, off, n, freemem;
   struct proc *me = myproc();
   struct scratch *sc = 0;
   char *zero = 0;
@@ -77,7 +77,7 @@ sys_sysinfo(void)
     if(!procinfo(slot, &pi))
       continue;
 
-    sc->slotpid[slot] = pi.pid;
+    sc->slotpid[slot] = (&pi)->pid;
     for(i = 0; i < pi.nfiles; i++){
       int id = pi.files[i].file_id;
       sc->refmask[id][slot / 64] |= 1ULL << (slot % 64);
@@ -108,7 +108,16 @@ sys_sysinfo(void)
     nfiles++;
   }
 
-  /* Counts last, so they match the entries actually written. */
+  /* Release scratch page before measuring free memory. */
+  kfree(sc);
+  sc = 0;
+
+  /* Step 4: free physical memory in bytes, then counts. */
+  freemem = kfreemem();
+  if(copyout(me->pagetable, me->sz,
+             addr + offsetof(struct sysinfo, freemem),
+             (char *)&freemem, sizeof(freemem)) < 0)
+    goto bad;
   if(copyout(me->pagetable, me->sz,
              addr + offsetof(struct sysinfo, nfiles),
              (char *)&nfiles, sizeof(nfiles)) < 0)
@@ -118,7 +127,6 @@ sys_sysinfo(void)
              (char *)&nprocs, sizeof(nprocs)) < 0)
     goto bad;
 
-  kfree(sc);
   return 0;
 
 bad:
