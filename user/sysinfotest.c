@@ -474,6 +474,8 @@ cli(int mode)
     check(contains(output, "sysinfo: syscall failed or is not implemented"),
           "missing syscall failure message");
   } else {
+    check(contains(output, "FREEMEM "), "missing free memory output");
+    
     check(contains(output, "FILES ") &&
             contains(output, "ID TYPE MODE REF PIDS"),
           "missing file table output");

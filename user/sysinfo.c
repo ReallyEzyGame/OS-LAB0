@@ -71,6 +71,8 @@ main(int argc, char **argv)
     exit(1);
   }
 
+  printf("FREEMEM %lu\n", info.freemem);
+
   printf("FILES %d\n", info.nfiles);
   printf("ID TYPE MODE REF PIDS\n");
   for (int i = 0; i < info.nfiles; i++) {
